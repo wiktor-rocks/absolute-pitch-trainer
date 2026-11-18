@@ -1,0 +1,47 @@
+{
+  "name": "absolute-pitch-trainer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Absolute pitch training app replicating an 8-week adult AP training study protocol.",
+  "scripts": {
+    "build:samples": "node tools/build-samples.mjs",
+    "serve": "node tools/serve.mjs",
+    "start": "node tools/serve.mjs",
+    "test": "node --test test/*.test.mjs",
+    "electron": "env -u ELECTRON_RUN_AS_NODE electron .",
+    "build:samples:check": "node -e \"require('fs').existsSync('samples/manifest.json')||(console.error('samples/ missing - run: npm run build:samples'),process.exit(1))\"",
+    "dist": "npm run build:samples:check && electron-builder --linux AppImage"
+  },
+  "main": "electron/main.cjs",
+  "author": "AP Trainer",
+  "devDependencies": {
+    "electron": "44.10.0",
+    "electron-builder": "26.18.1"
+  },
+  "build": {
+    "appId": "local.aptrainer",
+    "productName": "AP Trainer",
+    "asar": false,
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "index.html",
+      "styles.css",
+      "src/**",
+      "samples/**",
+      "electron/**",
+      "package.json"
+    ],
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Education",
+      "syncDesktopName": true
+    },
+    "artifactName": "AP-Trainer-${version}.AppImage"
+  },
+  "desktopName": "ap-trainer.desktop"
+}

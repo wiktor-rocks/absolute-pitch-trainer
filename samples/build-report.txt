@@ -1,0 +1,8 @@
+  sung C4: was 4.2c (retuned), 0.68 s
+  sung D4: was -1.9c, 0.49 s
+  sung E4: was 9.6c (retuned), 0.47 s
+  sung F4: was 3.9c (retuned), 0.60 s
+  sung G4: was 8.2c (retuned), 0.52 s
+  sung A4: was 9.3c (retuned), 0.55 s
+  sung B4: was 17.3c (retuned), 0.43 s
+sung cues: 7 (recorded, from assets/sung/)

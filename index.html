@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; object-src 'none'; base-uri 'none'">
+  <title>Absolute Pitch Trainer</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <nav class="topbar">
+    <a class="brand" href="#/">AP Trainer</a>
+    <div id="nav" class="nav">
+      <a href="#/">Protocol</a>
+      <a href="#/practice">Practice</a>
+      <a href="#/results">Results</a>
+      <a href="#/settings">Settings</a>
+    </div>
+    <label class="master-vol" title="Master volume">
+      <span class="vol-icon" aria-hidden="true">🔊</span>
+      <input id="master-volume" type="range" min="-40" max="12" step="1" value="0" aria-label="Master volume">
+      <span id="master-volume-value" class="vol-value">0 dB</span>
+    </label>
+  </nav>
+  <main id="stage"></main>
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
