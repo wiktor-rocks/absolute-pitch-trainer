@@ -2,6 +2,8 @@
 
 A vanilla-JS web app (no framework, no bundler, no runtime dependencies) that replicates the training and testing software from an 8-week adult absolute-pitch training study.
 
+**Live:** https://wiktor-rocks.github.io/absolute-pitch-trainer/ (GitHub Pages, served from `main`; `samples/` is committed for this). On touch screens the speed tasks show a "Tap for target" pad in place of Space.
+
 ## Quick start
 
 ```sh
