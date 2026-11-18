@@ -5,7 +5,7 @@
 //   → weeks 1–8. Each week: 4 sessions of each phase task, THEN that week's test(s).
 //       Phase 1 (weeks 1–4): Simple Speed, Complex Speed, Accuracy Training → Weekly Test
 //       Phase 2 (weeks 5–8): Hypercomplex Speed, Name That Key, Accuracy Training → Weekly Test + NTK Test
-//     A week's tests unlock only once its training is done; finishing the tests starts the next week.
+//     A week's tests can be taken at any time; the week is done once its training and tests both are.
 //   → post-test (same as pre-test)
 //   → retention test, ~4 months after the post-test.
 //
@@ -41,7 +41,7 @@ export function weekProgress(sessions, week) {
   }));
   const trainingDone = training.every((t) => t.done >= t.target);
   const tests = PHASE_TESTS[phase].map((task) => ({
-    task, done: ps.some((s) => s.task === task && s.context.role === 'test'), unlocked: trainingDone,
+    task, done: ps.some((s) => s.task === task && s.context.role === 'test'), unlocked: true,
   }));
   return { week, phase, training, tests, trainingDone, complete: trainingDone && tests.every((t) => t.done) };
 }
@@ -103,7 +103,6 @@ export function protocolContext(state, taskId) {
     }
     const te = state.tests.find((t) => t.task === taskId);
     if (te) {
-      if (!te.unlocked) return { blocked: `The week ${state.week} test unlocks after all training sessions for the week are done.` };
       if (te.done) return { blocked: `You've already taken this test for week ${state.week}.` };
       return { ...base, stage: 'week', week: state.week, phase: state.phase, role: 'test' };
     }

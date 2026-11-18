@@ -13,7 +13,7 @@ export async function renderProtocol(stage) {
   stage.append(h('div', { class: 'page' },
     h('header', { class: 'page-head' },
       h('h1', {}, 'Protocol'),
-      h('p', { class: 'lead' }, 'The 8-week training study, step by step. Each week: 4 sessions of each training task, then the week’s test, which unlocks once the training is done. For extra, unscored work use the Practice tab.')),
+      h('p', { class: 'lead' }, 'The 8-week training study, step by step. Each week: 4 sessions of each training task, then the week’s test. For extra, unscored work use the Practice tab.')),
     currentCard(st, pickWeek),
     timeline(st, pickWeek)));
 }
@@ -22,7 +22,7 @@ function currentCard(st, pickWeek) {
   const card = h('section', { class: 'card status' });
   const stageTitle = {
     pre: ['Pre-test', 'Before training starts, take both tests to measure your baseline.'],
-    week: [`Week ${st.week} of ${WEEKS} · Phase ${st.phase}`, 'Do 4 sessions of each training task, on any days and in any order (the study used 4 days a week). The week’s test unlocks when all 12 are done, and finishing it starts the next week.'],
+    week: [`Week ${st.week} of ${WEEKS} · Phase ${st.phase}`, 'Do 4 sessions of each training task, on any days and in any order (the study used 4 days a week). You can take the week’s test whenever you like (the study took it after the training). The week is done once all 12 sessions and the test are.'],
     post: ['Post-test', 'Training complete. Take both tests again.'],
     'retention-wait': ['Retention test', `Take both tests again about 4 months after the post-test, on ${st.retentionDate && fmtDate(st.retentionDate.toISOString())} (${st.daysToRetention} days from now). To measure retention cleanly, avoid training in the meantime.`],
     retention: ['Retention test', 'It has been about 4 months since the post-test. Take both tests one last time.'],
@@ -46,7 +46,7 @@ function currentCard(st, pickWeek) {
     items.push(h('div', { class: 'checklist' }, st.tests.map((t) => stepItem(TASKS[t.task], {
       label: t.done ? 'done' : t.unlocked ? 'ready' : 'locked',
       frac: t.done ? 1 : 0, done: t.done, locked: !t.unlocked,
-      lockNote: st.stage === 'week' ? 'Unlocks after this week’s training' : st.stage === 'retention-wait' ? `In ${st.daysToRetention} days` : null,
+      lockNote: st.stage === 'retention-wait' ? `In ${st.daysToRetention} days` : null,
     }))));
   }
   card.append(...items);
@@ -81,7 +81,7 @@ function timeline(st, pickWeek) {
       onclick: pickable ? () => pickWeek(w.week) : null },
       h('div', { class: 'week-label' }, `W${w.week}`),
       h('div', { class: 'progress small' }, h('div', { class: 'progress-fill', style: { width: `${(tDone / tTarget) * 100}%` } })),
-      h('div', { class: 'week-meta' }, w.complete ? '✓ done' : `${tDone}/${tTarget}${w.trainingDone ? ' · test ready' : ''}`));
+      h('div', { class: 'week-meta' }, w.complete ? '✓ done' : `${tDone}/${tTarget}${w.tests.every((t) => t.done) ? ' · test done' : ''}`));
   });
   return h('section', { class: 'card' },
     h('h2', {}, 'Progress'),

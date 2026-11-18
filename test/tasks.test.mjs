@@ -132,13 +132,13 @@ test('protocol: progression and test gating', () => {
     const st = protocolState(sessions, new Date(t));
     assert.equal(st.stage, 'week'); assert.equal(st.week, week);
     const phase = week <= 4 ? 1 : 2;
-    // test locked until all training is done
-    for (const test of PHASE_TESTS[phase]) assert.ok(run(test).blocked, `week ${week} test should be locked`);
+    // tests are open from the start of the week
+    for (const test of PHASE_TESTS[phase]) assert.ok(!protocolContext(st, test).blocked, `week ${week} test should be open`);
     for (let i = 0; i < 4; i++) for (const task of PHASE_TASKS[phase]) assert.ok(!run(task).blocked);
     assert.ok(run(PHASE_TASKS[phase][0]).blocked, '5th session of a task is blocked');
     // practice sessions never count
     sessions.push({ task: 'hypercomplexSpeed', completed: true, context: practiceContext(), startedAt: '', finishedAt: '' });
-    for (const test of PHASE_TESTS[phase]) assert.ok(!run(test).blocked, `week ${week} test should unlock`);
+    for (const test of PHASE_TESTS[phase]) assert.ok(!run(test).blocked, `week ${week} test should run`);
   }
   assert.equal(protocolState(sessions, new Date(t)).stage, 'post');
   BIG_TESTS.forEach(run);
@@ -149,6 +149,18 @@ test('protocol: progression and test gating', () => {
   assert.equal(protocolState(sessions, new Date(t)).stage, 'retention');
   BIG_TESTS.forEach(run);
   assert.equal(protocolState(sessions, new Date(t)).stage, 'complete');
+});
+
+test('protocol: a week\'s test can come before its training, but the week stays open', () => {
+  const pre = (task) => ({ task, completed: true, context: { mode: 'protocol', stage: 'pre', role: 'test' }, finishedAt: '2026-01-01T09:00:00' });
+  const sessions = [pre('weeklyTest'), pre('nameThatKeyTest')];
+  const ctx = protocolContext(protocolState(sessions), 'weeklyTest');
+  assert.equal(ctx.role, 'test'); assert.equal(ctx.week, 1);
+  sessions.push({ task: 'weeklyTest', completed: true, context: ctx });
+  const st = protocolState(sessions);
+  assert.equal(st.week, 1, 'week 1 not done until its training is');
+  assert.ok(protocolContext(st, 'weeklyTest').blocked, 'test only once per week');
+  assert.ok(!protocolContext(st, 'simpleSpeed').blocked);
 });
 
 test('note naming: letters by default, fixed-do by sound on request', async () => {

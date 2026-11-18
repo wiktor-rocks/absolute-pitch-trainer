@@ -29,7 +29,7 @@ Add `?quick` to the URL (`http://localhost:8080/?quick#/task/accuracy`) to run t
 **Protocol tab.** This is the guided study, and it moves forward with your progress rather than by the calendar:
 
 1. Pre-test (Weekly Test + Name That Key Test).
-2. Weeks 1–8. Each week is 4 sessions of each training task (phase 1: SS, CS, AT; phase 2: HS, NTK, AT). The week's test (WT; also NTKT in phase 2) **unlocks only once all 12 training sessions are done**. Finishing the test starts the next week.
+2. Weeks 1–8. Each week is 4 sessions of each training task (phase 1: SS, CS, AT; phase 2: HS, NTK, AT). The week's test (WT; also NTKT in phase 2) can be taken at any time, though the study took it after the training. The week is complete, and the next one starts, once all 12 training sessions and the test are done.
 3. Post-test.
 4. Retention test, which unlocks 120 days after the post-test.
 
