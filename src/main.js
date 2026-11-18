@@ -60,7 +60,7 @@ function quickify(cfg) {
 
 /** Protocol launch: the protocol decides whether this task is allowed right now. */
 async function runProtocolTask(cfg) {
-  const ctx = protocolContext(protocolState(await listSessions()), cfg.id);
+  const ctx = protocolContext(protocolState(await listSessions(), new Date(), { week: (await getSettings()).protocolWeek }), cfg.id);
   if (ctx.blocked) {
     clear(stage).append(h('div', { class: 'screen center' },
       h('div', { class: 'eyebrow' }, 'Not available yet'), h('h1', {}, cfg.name), h('p', { class: 'lead' }, ctx.blocked),

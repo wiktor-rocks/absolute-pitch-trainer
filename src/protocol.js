@@ -1,4 +1,5 @@
-// The study's protocol as a progression. It moves with your progress, never by the calendar:
+// The study's protocol as a progression. It moves with your progress, never by the calendar,
+// and you can pick which unfinished week to work on (`opts.week`):
 //
 //   pre-test (Weekly Test + Name That Key Test)
 //   → weeks 1–8. Each week: 4 sessions of each phase task, THEN that week's test(s).
@@ -55,14 +56,20 @@ function bigTestProgress(sessions, stage) {
 }
 
 /**
- * Where the user is in the protocol, derived only from stored sessions.
+ * Where the user is in the protocol, derived from stored sessions. `opts.week` picks the week to
+ * work on; it is ignored once that week is complete, and the first unfinished week is used.
  * @returns {{stage:'pre'|'week'|'post'|'retention-wait'|'retention'|'complete', week?:number, phase?:number,
  *            training:Array, tests:Array, weeks:Array, daysToRetention?:number, retentionDate?:Date}}
  */
-export function protocolState(sessions, now = new Date()) {
+export function protocolState(sessions, now = new Date(), opts = {}) {
   const weeks = Array.from({ length: WEEKS }, (_, i) => weekProgress(sessions, i + 1));
   const pre = bigTestProgress(sessions, 'pre');
-  if (!pre.complete) return { stage: 'pre', training: [], tests: pre.tests, weeks };
+  const preDone = pre.complete;
+  const chosen = weeks.find((w) => w.week === opts.week && !w.complete);
+  if (chosen) {
+    return { stage: 'week', week: chosen.week, phase: chosen.phase, training: chosen.training, tests: chosen.tests, weeks, preDone, chosen: true };
+  }
+  if (!pre.complete) return { stage: 'pre', training: [], tests: pre.tests, weeks, preDone };
 
   const current = weeks.find((w) => !w.complete);
   if (current) {

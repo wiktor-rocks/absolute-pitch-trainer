@@ -1,22 +1,24 @@
 // Protocol tab: the guided 8-week study. Only sessions launched from here count toward it.
 import { h, clear, fmtDate } from './dom.js';
 import { TASKS } from '../tasks/configs.js';
-import { listSessions } from '../store/progress.js';
+import { listSessions, getSettings, saveSettings } from '../store/progress.js';
 import { protocolState, WEEKS, PHASE_TASKS } from '../protocol.js';
 
 export async function renderProtocol(stage) {
   const sessions = await listSessions();
-  const st = protocolState(sessions);
+  const { protocolWeek } = await getSettings();
+  const st = protocolState(sessions, new Date(), { week: protocolWeek });
+  const pickWeek = async (week) => { await saveSettings({ protocolWeek: week }); renderProtocol(stage); };
   clear(stage);
   stage.append(h('div', { class: 'page' },
     h('header', { class: 'page-head' },
       h('h1', {}, 'Protocol'),
       h('p', { class: 'lead' }, 'The 8-week training study, step by step. Each week: 4 sessions of each training task, then the week’s test, which unlocks once the training is done. For extra, unscored work use the Practice tab.')),
-    currentCard(st),
-    timeline(st)));
+    currentCard(st, pickWeek),
+    timeline(st, pickWeek)));
 }
 
-function currentCard(st) {
+function currentCard(st, pickWeek) {
   const card = h('section', { class: 'card status' });
   const stageTitle = {
     pre: ['Pre-test', 'Before training starts, take both tests to measure your baseline.'],
@@ -27,6 +29,10 @@ function currentCard(st) {
     complete: ['Protocol complete', 'You have finished every stage of the study, including the retention test. See the Results tab.'],
   }[st.stage];
   card.append(h('div', { class: 'eyebrow' }, 'Now'), h('h2', {}, stageTitle[0]), h('p', {}, stageTitle[1]));
+  if (st.chosen) {
+    card.append(h('p', { class: 'hint' }, 'You picked this week. ',
+      h('button', { class: 'link-btn', type: 'button', onclick: () => pickWeek(null) }, 'Follow progress instead')));
+  }
 
   const items = [];
   if (st.training.length) {
@@ -57,21 +63,29 @@ function stepItem(cfg, { label, frac, done, locked, lockNote }) {
   return h('a', { class: 'check-item', href: `#/protocol/${cfg.id}` }, inner);
 }
 
-function timeline(st) {
-  const preDone = st.stage !== 'pre';
+function timeline(st, pickWeek) {
+  const preDone = st.preDone !== false && st.stage !== 'pre';
   const postDone = ['retention-wait', 'retention', 'complete'].includes(st.stage);
   const node = (label, sub, state, extra = null) => h('div', { class: `week stage-node ${state}` }, h('div', { class: 'week-label' }, label), extra, h('div', { class: 'week-meta' }, sub));
   const weeks = st.weeks.map((w) => {
     const tDone = w.training.reduce((a, t) => a + t.done, 0);
     const tTarget = w.training.reduce((a, t) => a + t.target, 0);
     const state = w.complete ? 'complete' : st.stage === 'week' && st.week === w.week ? 'current' : '';
-    return h('div', { class: `week phase-${w.phase} ${state}` },
+    const current = state === 'current';
+    // any unfinished week can be picked as the one to work on
+    const pickable = !w.complete && !current;
+    return h(pickable ? 'button' : 'div', {
+      class: `week phase-${w.phase} ${state}${pickable ? ' pickable' : ''}`,
+      type: pickable ? 'button' : null,
+      title: pickable ? `Work on week ${w.week}` : null,
+      onclick: pickable ? () => pickWeek(w.week) : null },
       h('div', { class: 'week-label' }, `W${w.week}`),
       h('div', { class: 'progress small' }, h('div', { class: 'progress-fill', style: { width: `${(tDone / tTarget) * 100}%` } })),
       h('div', { class: 'week-meta' }, w.complete ? '✓ done' : `${tDone}/${tTarget}${w.trainingDone ? ' · test ready' : ''}`));
   });
   return h('section', { class: 'card' },
     h('h2', {}, 'Progress'),
+    h('p', { class: 'hint' }, 'Tap an unfinished week to work on it.'),
     h('div', { class: 'legend' },
       h('span', { class: 'legend-item' }, h('span', { class: 'swatch phase1' }), `Phase 1: ${PHASE_TASKS[1].map((t) => TASKS[t].name).join(', ')}`),
       h('span', { class: 'legend-item' }, h('span', { class: 'swatch phase2' }), `Phase 2: ${PHASE_TASKS[2].map((t) => TASKS[t].name).join(', ')}`)),

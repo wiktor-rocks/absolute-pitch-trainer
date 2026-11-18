@@ -33,6 +33,8 @@ Add `?quick` to the URL (`http://localhost:8080/?quick#/task/accuracy`) to run t
 3. Post-test.
 4. Retention test, which unlocks 120 days after the post-test.
 
+To choose which week you work on, tap any unfinished week in the Progress grid. That week stays the current one until it's complete or you pick "Follow progress instead", which goes back to the first unfinished week. The choice is saved in settings (`protocolWeek`).
+
 The rules are in `src/protocol.js` and are unit tested.
 
 **Practice tab.** Every task is available at any time. Practice sessions show up in Results (labelled "Practice") but never count toward the protocol.

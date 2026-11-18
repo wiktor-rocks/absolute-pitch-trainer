@@ -167,3 +167,21 @@ test('note naming: letters by default, fixed-do by sound on request', async () =
   setNaming('bogus');
   assert.equal(getNaming(), 'letters');
 });
+
+test('protocol: you can pick any unfinished week to work on', () => {
+  const pre = (task) => ({ task, completed: true, context: { mode: 'protocol', stage: 'pre', role: 'test' }, finishedAt: '2026-01-01T09:00:00' });
+  const sessions = [pre('weeklyTest'), pre('nameThatKeyTest')];
+  assert.equal(protocolState(sessions).week, 1);
+  const st = protocolState(sessions, new Date(), { week: 6 });
+  assert.equal(st.stage, 'week'); assert.equal(st.week, 6); assert.equal(st.phase, 2); assert.ok(st.chosen);
+  const ctx = protocolContext(st, 'nameThatKey');
+  assert.equal(ctx.week, 6); assert.equal(ctx.role, 'training');
+  assert.ok(protocolContext(st, 'simpleSpeed').blocked, 'phase 1 task is not part of week 6');
+  // finish week 6, then the pick is ignored and progress decides again
+  const s6 = { completed: true, context: { mode: 'protocol', stage: 'week', week: 6, role: 'training' } };
+  for (const task of PHASE_TASKS[2]) for (let i = 0; i < 4; i++) sessions.push({ ...s6, task });
+  for (const task of PHASE_TESTS[2]) sessions.push({ ...s6, task, context: { ...s6.context, role: 'test' } });
+  const after = protocolState(sessions, new Date(), { week: 6 });
+  assert.equal(after.week, 1); assert.ok(!after.chosen);
+  assert.equal(protocolState(sessions, new Date(), { week: 99 }).week, 1, 'invalid pick is ignored');
+});
